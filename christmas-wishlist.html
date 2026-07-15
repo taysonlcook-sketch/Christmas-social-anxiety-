@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Evergreen List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pine-950:#0a1f14;
+    --pine-900:#0f2c1c;
+    --pine-800:#153a24;
+    --holly:#1b6b3c;
+    --holly-light:#278c4f;
+    --red:#c8102e;
+    --red-light:#e0324e;
+    --red-dark:#8c0c20;
+    --gold:#c9a24b;
+    --cream:#f4ead9;
+    --ink:#0a1d16;
+    --line: rgba(244,234,217,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at 15% -10%, rgba(200,16,46,0.14), transparent 50%),
+      radial-gradient(ellipse at 90% 5%, rgba(39,140,79,0.16), transparent 45%),
+      var(--pine-950);
+    color:var(--cream);
+    font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+  .display{font-family:'Fraunces', serif;}
+
+  /* subtle falling snow */
+  .snow{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+  .flake{position:absolute; top:-10px; background:var(--cream); border-radius:50%; opacity:0.35; animation:fall linear infinite;}
+  @keyframes fall{ to{ transform:translateY(110vh); } }
+  @media (prefers-reduced-motion: reduce){ .flake{ animation:none; display:none; } }
+
+  /* fixed treeline silhouette across the bottom of the viewport */
+  .treeline{ position:fixed; left:0; right:0; bottom:0; height:64px; display:flex; align-items:flex-end;
+    justify-content:space-between; pointer-events:none; z-index:0; opacity:0.5; overflow:hidden; }
+  .treeline .t{ flex-shrink:0; }
+
+  .wrap{position:relative; z-index:1; max-width:920px; margin:0 auto; padding:48px 24px 96px;}
+
+  header.top{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:16px; border-bottom:1px solid var(--line); padding-bottom:20px;}
+  .brand{display:flex; align-items:baseline; gap:12px;}
+  .brand .mark{font-size:26px;}
+  .brand h1{font-size:22px; font-weight:500; letter-spacing:0.02em; margin:0;}
+  .brand .sub{font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--holly-light); opacity:0.9;}
+
+  nav.modes{display:flex; gap:8px;}
+  nav.modes button{
+    background:transparent; border:1px solid var(--line); color:var(--cream);
+    font-family:'Work Sans'; font-size:13px; padding:8px 16px; border-radius:999px; cursor:pointer;
+    transition: all .2s ease; letter-spacing:0.02em;
+  }
+  nav.modes button.active{background:var(--cream); color:var(--pine-950); border-color:var(--cream);}
+  nav.modes button:not(.active):hover{border-color:var(--red-light); color:var(--red-light);}
+
+  .garland{ display:flex; justify-content:center; gap:18px; font-size:15px; padding:14px 0 30px; opacity:0.85; user-select:none; }
+
+  /* ---------- LANDING ---------- */
+  .hero{text-align:center; padding:36px 0 24px;}
+  .hero .eyebrow{font-size:12px; letter-spacing:0.22em; text-transform:uppercase; color:var(--holly-light); margin-bottom:18px;}
+  .hero h2{font-size:clamp(34px, 6vw, 56px); line-height:1.05; margin:0 0 18px; font-weight:500;}
+  .hero h2 em{font-style:italic; color:var(--red-light);}
+  .hero p{max-width:520px; margin:0 auto 36px; color:rgba(244,234,217,0.75); font-size:16px; line-height:1.6;}
+
+  .choice-row{display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:640px; margin:0 auto;}
+  @media (max-width:640px){ .choice-row{grid-template-columns:1fr;} }
+  .choice-card{
+    background:var(--pine-900); border:1px solid var(--line); border-radius:14px; padding:28px 22px;
+    text-align:left; cursor:pointer; transition: transform .18s ease, border-color .18s ease;
+    color:var(--cream); font-family:inherit;
+  }
+  .choice-card:hover{ transform:translateY(-3px); border-color:var(--red); }
+  .choice-card .ic{font-size:28px; margin-bottom:14px; display:block;}
+  .choice-card h3{font-family:'Fraunces'; font-weight:500; font-size:19px; margin:0 0 8px;}
+  .choice-card p{margin:0; font-size:13.5px; color:rgba(244,234,217,0.65); line-height:1.5;}
+
+  /* ---------- CATEGORY PICK ---------- */
+  .section-title{font-family:'Fraunces'; font-size:26px; font-weight:500; margin:0 0 6px;}
+  .section-desc{color:rgba(244,234,217,0.65); font-size:14px; margin:0 0 32px;}
+  .cat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media (max-width:560px){ .cat-grid{grid-template-columns:1fr;} }
+  .cat-card{
+    position:relative; border-radius:14px; padding:24px 20px 24px 56px; text-align:left; cursor:pointer;
+    border:1px solid var(--line); background:var(--pine-900); color:var(--cream); font-family:inherit;
+    transition: transform .18s ease, border-color .18s ease;
+  }
+  .cat-card:hover:not(:disabled){ transform:translateY(-3px); border-color:var(--gold); }
+  .cat-card:disabled{ opacity:0.35; cursor:not-allowed; }
+  .cat-card .cat-tree{ position:absolute; left:18px; top:50%; transform:translateY(-50%); font-size:22px; }
+  .cat-card .tag{font-family:'Fraunces'; font-size:20px; margin-bottom:8px;}
+  .cat-card .count{font-size:12.5px; letter-spacing:0.04em; color:var(--red-light);}
+  .cat-card:nth-child(odd) .cat-tree{ filter:hue-rotate(0deg); }
+
+  .back-link{background:none; border:none; color:var(--holly-light); font-size:13px; cursor:pointer; padding:0; margin-bottom:20px; font-family:inherit; display:inline-flex; align-items:center; gap:6px;}
+  .back-link:hover{ text-decoration:underline; }
+
+  /* ---------- BOX GRID ---------- */
+  .box-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:8px;}
+  @media (max-width:640px){ .box-grid{grid-template-columns:repeat(2,1fr);} }
+  .gift-box{
+    aspect-ratio:1/0.9; border-radius:10px; border:none; cursor:pointer; position:relative;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    transition: transform .15s ease;
+  }
+  .gift-box:hover:not(:disabled){ transform:translateY(-4px) rotate(-0.5deg); }
+  .gift-box:disabled{ opacity:0.3; cursor:default; }
+  .gift-box .lid{ position:absolute; top:0; left:0; right:0; height:22%; background:rgba(0,0,0,0.18); }
+  .gift-box .ribbon-v{ position:absolute; top:0; bottom:0; left:50%; width:16%; transform:translateX(-50%); background:rgba(244,234,217,0.92); }
+  .gift-box .ribbon-h{ position:absolute; left:0; right:0; top:22%; height:16%; background:rgba(244,234,217,0.92); }
+  .gift-box .bow{ position:absolute; top:6%; left:50%; transform:translateX(-50%); font-size:20px; }
+  .gift-box.opened{ filter:grayscale(0.6) brightness(0.7); }
+  .gift-box.opened::after{ content:'✓ claimed'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,29,22,0.55); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--cream); }
+  @media (prefers-reduced-motion: no-preference){
+    .gift-box.wiggle{ animation:wiggle .5s ease; }
+  }
+  @keyframes wiggle{ 0%,100%{transform:rotate(0);} 25%{transform:rotate(-3deg);} 75%{transform:rotate(3deg);} }
+
+  .box-empty{ padding:48px 20px; text-align:center; color:rgba(244,234,217,0.6); border:1px dashed var(--line); border-radius:14px; font-size:14px; }
+
+  /* ---------- MODAL / TAG REVEAL ---------- */
+  .overlay{ position:fixed; inset:0; background:rgba(10,29,22,0.72); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .tag-card{
+    background:var(--cream); color:var(--ink); border-radius:6px; max-width:380px; width:100%;
+    padding:32px 28px 26px; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  }
+  .tag-card::before{ content:''; position:absolute; top:-10px; left:50%; transform:translateX(-50%); width:2px; height:16px; background:var(--gold); }
+  .tag-hole{ width:16px; height:16px; border-radius:50%; background:var(--pine-950); margin:0 auto 18px; }
+  .tag-eyebrow{ text-align:center; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--red); margin-bottom:10px; }
+  .tag-card h3{ font-family:'Fraunces'; font-size:24px; text-align:center; margin:0 0 10px; font-weight:600; }
+  .tag-card p.desc{ text-align:center; font-size:14.5px; line-height:1.55; color:#2a2a2a; margin:0 0 22px; }
+  .tag-actions{ display:flex; flex-direction:column; gap:10px; }
+  .btn{ font-family:'Work Sans'; font-size:14px; font-weight:600; padding:12px 18px; border-radius:999px; border:none; cursor:pointer; letter-spacing:0.01em; }
+  .btn-accept{ background:var(--red); color:var(--cream); }
+  .btn-accept:hover{ background:var(--red-light); }
+  .btn-again{ background:transparent; color:var(--ink); border:1px solid rgba(10,29,22,0.25); }
+  .btn-again:hover{ border-color:var(--ink); }
+  .btn-close{ background:none; border:none; position:absolute; top:12px; right:14px; font-size:18px; color:#888; cursor:pointer; }
+
+  .confirm-note{ text-align:center; font-size:13px; color:#666; margin-top:14px; }
+
+  /* ---------- PASSCODE MODAL ---------- */
+  .lock-card{
+    background:var(--pine-900); border:1px solid var(--line); color:var(--cream); border-radius:14px;
+    max-width:340px; width:100%; padding:30px 26px; position:relative; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .lock-card .lock-ic{ font-size:26px; margin-bottom:12px; }
+  .lock-card h3{ font-family:'Fraunces'; font-size:20px; margin:0 0 6px; font-weight:500; }
+  .lock-card p{ font-size:13px; color:rgba(244,234,217,0.65); margin:0 0 18px; line-height:1.5; }
+  .lock-card input{ text-align:center; letter-spacing:0.2em; font-size:16px; margin-bottom:12px; }
+  .lock-error{ color:var(--red-light); font-size:12.5px; margin:-4px 0 12px; min-height:14px; }
+  @media (prefers-reduced-motion: no-preference){ .shake{ animation:shakeX .35s ease; } }
+  @keyframes shakeX{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .lock-alt{ background:none; border:none; color:var(--holly-light); font-size:12px; cursor:pointer; margin-top:4px; font-family:inherit; }
+  .lock-alt:hover{ text-decoration:underline; }
+
+  /* ---------- OWNER VIEW ---------- */
+  .form-card{ background:var(--pine-900); border:1px solid var(--line); border-radius:14px; padding:26px; margin-bottom:36px; }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  @media (max-width:560px){ .form-row{grid-template-columns:1fr;} }
+  label{ display:block; font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--holly-light); margin-bottom:6px; }
+  input[type=text], input[type=password], textarea, select{
+    width:100%; background:var(--pine-950); border:1px solid var(--line); color:var(--cream);
+    padding:10px 12px; border-radius:8px; font-family:'Work Sans'; font-size:14px;
+  }
+  textarea{ resize:vertical; min-height:60px; }
+  input:focus, textarea:focus, select:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+  .full{ grid-column:1/-1; }
+  .btn-primary{ background:var(--gold); color:var(--pine-950); font-weight:600; }
+  .btn-primary:hover{ background:#dab35c; }
+
+  .owner-toolbar{ display:flex; justify-content:flex-end; margin-bottom:14px; }
+  .link-btn{ background:none; border:none; color:rgba(244,234,217,0.5); font-size:12px; cursor:pointer; font-family:inherit; }
+  .link-btn:hover{ color:var(--holly-light); text-decoration:underline; }
+
+  .gift-list{ display:flex; flex-direction:column; gap:10px; }
+  .gift-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--pine-900); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .gift-row.claimed{ opacity:0.5; }
+  .gift-info h4{ margin:0 0 3px; font-family:'Fraunces'; font-size:15.5px; font-weight:500; }
+  .gift-info p{ margin:0; font-size:12.5px; color:rgba(244,234,217,0.6); }
+  .gift-meta{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .pill{ font-size:10.5px; letter-spacing:0.05em; text-transform:uppercase; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--holly-light); white-space:nowrap; }
+  .pill.claimed-pill{ color:var(--red-light); border-color:var(--red-light); }
+  .del-btn{ background:none; border:none; color:rgba(244,234,217,0.4); cursor:pointer; font-size:16px; padding:4px; }
+  .del-btn:hover{ color:var(--red-light); }
+  .empty-note{ text-align:center; padding:40px 20px; color:rgba(244,234,217,0.5); font-size:14px; }
+
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--cream); color:var(--ink); padding:10px 20px; border-radius:999px; font-size:13px; font-weight:500; opacity:0; pointer-events:none; transition:all .25s ease; z-index:100; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .footer-note{ text-align:center; font-size:12px; color:rgba(244,234,217,0.35); margin-top:60px; position:relative; z-index:1; }
+</style>
+</head>
+<body>
+
+<div class="snow" id="snow"></div>
+<div class="treeline" id="treeline"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="mark">🎄</span>
+      <div>
+        <h1 class="display">The Evergreen List</h1>
+        <div class="sub">A wishlist, kept as a surprise</div>
+      </div>
+    </div>
+    <nav class="modes">
+      <button id="mode-guest" class="active">Find a gift</button>
+      <button id="mode-owner">Manage my list</button>
+    </nav>
+  </header>
+  <div class="garland">🎄 🎁 🌲 🎁 🎄 🌲 🎁 🎄</div>
+
+  <main id="app"></main>
+
+  <div class="footer-note">Once a gift is accepted, it disappears from the list — so no one doubles up.</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'christmas-gifts-v1';
+  const PASS_KEY = 'christmas-wishlist-owner-hash-v1';
+  const CATEGORIES = [
+    { id:'under25', label:'Under $25', tag:'A little something', tree:'🌲' },
+    { id:'25to50', label:'$25 – $50', tag:'Just right', tree:'🎄' },
+    { id:'50to100', label:'$50 – $100', tag:'A proper gift', tree:'🌲' },
+    { id:'100plus', label:'$100+', tag:'The big one', tree:'🎄' }
+  ];
+  const BOX_COLORS = ['var(--red)', 'var(--holly)', 'var(--red-dark)', 'var(--holly-light)', 'var(--red-light)', 'var(--pine-800)'];
+
+  let gifts = [];
+  let ownerHash = null;
+  let unlockedOwner = false;
+  let mode = 'guest';
+  let guestScreen = 'landing'; // landing | categories | boxes
+  let currentCategory = null;
+  let boxAssignments = {}; // boxIndex -> giftId
+  let openGift = null; // { boxIndex, gift }
+  let loaded = false;
+
+  const app = document.getElementById('app');
+  const toastEl = document.getElementById('toast');
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(()=> toastEl.classList.remove('show'), 2200);
+  }
+
+  function uid(){ return 'g' + Math.random().toString(36).slice(2,10); }
+
+  async function sha256(text){
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function loadGifts(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, true);
+      gifts = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){
+      gifts = [];
+    }
+    loaded = true;
+  }
+
+  async function saveGifts(){
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(gifts), true);
+    }catch(e){
+      showToast('Could not save — check your connection.');
+    }
+  }
+
+  async function loadPasscode(){
+    try{
+      const res = await window.storage.get(PASS_KEY, true);
+      ownerHash = res && res.value ? res.value : null;
+    }catch(e){
+      ownerHash = null;
+    }
+  }
+
+  async function savePasscode(hash){
+    try{
+      await window.storage.set(PASS_KEY, hash, true);
+      ownerHash = hash;
+    }catch(e){
+      showToast('Could not save passcode — check your connection.');
+    }
+  }
+
+  function unclaimedInCategory(catId){
+    return gifts.filter(g => g.category === catId && !g.claimed);
+  }
+
+  // ---------------- RENDER ROOT ----------------
+  function render(){
+    document.getElementById('mode-guest').classList.toggle('active', mode==='guest');
+    document.getElementById('mode-owner').classList.toggle('active', mode==='owner');
+    if(!loaded){
+      app.innerHTML = `<div class="empty-note">Loading your list…</div>`;
+      return;
+    }
+    if(mode === 'owner'){ renderOwner(); }
+    else { renderGuest(); }
+  }
+
+  // ---------------- GUEST VIEW ----------------
+  function renderGuest(){
+    if(guestScreen === 'landing'){
+      app.innerHTML = `
+        <div class="hero">
+          <div class="eyebrow">Shhh — it's a surprise</div>
+          <h2 class="display">Pick a price, <em>open a box</em>,<br>find something they'll love.</h2>
+          <p>Choose a budget below, then open gift boxes until one feels right. Accept it and it's yours to buy — no one else will see it.</p>
+        </div>
+        <div class="cat-grid" id="cat-grid-landing"></div>
+      `;
+      renderCategoryGrid(document.getElementById('cat-grid-landing'));
+      return;
+    }
+    if(guestScreen === 'categories'){
+      app.innerHTML = `
+        <div class="section-title display">Choose a budget</div>
+        <div class="section-desc">Boxes are shuffled — you won't know what's inside until you open one.</div>
+        <div class="cat-grid" id="cat-grid"></div>
+      `;
+      renderCategoryGrid(document.getElementById('cat-grid'));
+      return;
+    }
+    if(guestScreen === 'boxes'){
+      const cat = CATEGORIES.find(c => c.id === currentCategory);
+      const unclaimed = unclaimedInCategory(currentCategory);
+      app.innerHTML = `
+        <button class="back-link" id="back-to-cats">&larr; choose a different budget</button>
+        <div class="section-title display">${cat.label}</div>
+        <div class="section-desc">${unclaimed.length} gift${unclaimed.length===1?'':'s'} left to discover. Tap a box to open it.</div>
+        <div id="box-area"></div>
+      `;
+      document.getElementById('back-to-cats').onclick = () => { guestScreen='categories'; boxAssignments={}; render(); };
+      renderBoxArea();
+    }
+  }
+
+  function renderCategoryGrid(container){
+    container.innerHTML = CATEGORIES.map(c => {
+      const count = unclaimedInCategory(c.id).length;
+      return `
+        <button class="cat-card" data-cat="${c.id}" ${count===0?'disabled':''}>
+          <div class="cat-tree">${c.tree}</div>
+          <div class="tag display">${c.label}</div>
+          <div class="count">${count===0 ? 'All claimed' : c.tag + ' · ' + count + ' available'}</div>
+        </button>
+      `;
+    }).join('');
+    container.querySelectorAll('.cat-card').forEach(btn => {
+      btn.onclick = () => {
+        currentCategory = btn.dataset.cat;
+        guestScreen = 'boxes';
+        boxAssignments = {};
+        render();
+      };
+    });
+  }
+
+  function renderBoxArea(){
+    const area = document.getElementById('box-area');
+    const unclaimed = unclaimedInCategory(currentCategory);
+    if(unclaimed.length === 0){
+      area.innerHTML = `<div class="box-empty">Every gift in this range has been claimed. Try another budget!</div>`;
+      return;
+    }
+    const boxCount = Math.min(unclaimed.length, 6);
+    let html = '<div class="box-grid">';
+    for(let i=0;i<boxCount;i++){
+      const assignedId = boxAssignments[i];
+      const isClaimedNow = assignedId && gifts.find(g=>g.id===assignedId && g.claimed);
+      const color = BOX_COLORS[i % BOX_COLORS.length];
+      html += `
+        <button class="gift-box ${isClaimedNow?'opened':''}" data-idx="${i}" style="background:${color}" ${isClaimedNow?'disabled':''}>
+          <div class="lid"></div>
+          <div class="ribbon-v"></div>
+          <div class="ribbon-h"></div>
+          <div class="bow">🎀</div>
+        </button>
+      `;
+    }
+    html += '</div>';
+    area.innerHTML = html;
+    area.querySelectorAll('.gift-box').forEach(btn => {
+      btn.onclick = () => openBox(parseInt(btn.dataset.idx,10));
+    });
+  }
+
+  function openBox(idx){
+    const btn = document.querySelector(`.gift-box[data-idx="${idx}"]`);
+    if(btn){ btn.classList.add('wiggle'); setTimeout(()=>btn.classList.remove('wiggle'), 500); }
+
+    let giftId = boxAssignments[idx];
+    let gift = giftId ? gifts.find(g => g.id === giftId && !g.claimed) : null;
+
+    if(!gift){
+      const usedIds = new Set(Object.values(boxAssignments));
+      const pool = unclaimedInCategory(currentCategory).filter(g => !usedIds.has(g.id));
+      if(pool.length === 0){
+        showToast('No more unopened gifts right now.');
+        return;
+      }
+      gift = pool[Math.floor(Math.random() * pool.length)];
+      boxAssignments[idx] = gift.id;
+    }
+    openGift = { boxIndex: idx, gift };
+    renderTagModal();
+  }
+
+  function renderTagModal(){
+    if(!openGift) return;
+    const { gift } = openGift;
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    overlay.id = 'gift-overlay';
+    overlay.innerHTML = `
+      <div class="tag-card">
+        <button class="btn-close" id="close-tag">✕</button>
+        <div class="tag-hole"></div>
+        <div class="tag-eyebrow">Inside this box</div>
+        <h3 class="display">${escapeHtml(gift.name)}</h3>
+        ${gift.desc ? `<p class="desc">${escapeHtml(gift.desc)}</p>` : ''}
+        <div class="tag-actions">
+          <button class="btn btn-accept" id="accept-gift">Accept this gift</button>
+          <button class="btn btn-again" id="again-gift">Try another box</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById('close-tag').onclick = closeModal;
+    overlay.onclick = (e) => { if(e.target === overlay) closeModal(); };
+    document.getElementById('accept-gift').onclick = acceptGift;
+    document.getElementById('again-gift').onclick = tryAnotherBox;
+  }
+
+  function closeModal(){
+    const overlay = document.getElementById('gift-overlay');
+    if(overlay) overlay.remove();
+    openGift = null;
+  }
+
+  async function acceptGift(){
+    const { boxIndex, gift } = openGift;
+    await loadGifts();
+    const target = gifts.find(g => g.id === gift.id);
+    if(!target || target.claimed){
+      showToast('Someone just claimed this one — try another box!');
+      closeModal();
+      delete boxAssignments[boxIndex];
+      render();
+      return;
+    }
+    target.claimed = true;
+    target.claimedAt = new Date().toISOString();
+    await saveGifts();
+    closeModal();
+    showToast('It\'s yours! We won\'t show it to anyone else. 🎁');
+    render();
+  }
+
+  async function tryAnotherBox(){
+    const { boxIndex } = openGift;
+    closeModal();
+    delete boxAssignments[boxIndex];
+    await loadGifts();
+    render();
+    openBox(boxIndex);
+  }
+
+  // ---------------- PASSCODE GATE ----------------
+  function openLockModal(kind){
+    // kind: 'create' | 'unlock' | 'change'
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    overlay.id = 'lock-overlay';
+
+    if(kind === 'create'){
+      overlay.innerHTML = `
+        <div class="lock-card" id="lock-card">
+          <div class="lock-ic">🔒</div>
+          <h3 class="display">Set a passcode</h3>
+          <p>Protect your list so only you can add, edit, or remove gifts.</p>
+          <input type="password" id="pass-1" placeholder="New passcode" inputmode="numeric">
+          <input type="password" id="pass-2" placeholder="Confirm passcode" inputmode="numeric">
+          <div class="lock-error" id="lock-err"></div>
+          <button class="btn btn-primary" id="lock-submit" style="width:100%">Save passcode</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      document.getElementById('lock-submit').onclick = async () => {
+        const p1 = document.getElementById('pass-1').value;
+        const p2 = document.getElementById('pass-2').value;
+        const err = document.getElementById('lock-err');
+        if(p1.length < 4){ err.textContent = 'Use at least 4 characters.'; shakeLock(); return; }
+        if(p1 !== p2){ err.textContent = 'Passcodes don\'t match.'; shakeLock(); return; }
+        const hash = await sha256(p1);
+        await savePasscode(hash);
+        unlockedOwner = true;
+        overlay.remove();
+        mode = 'owner';
+        render();
+        showToast('Passcode set. Keep it somewhere safe!');
+      };
+    } else if(kind === 'unlock'){
+      overlay.innerHTML = `
+        <div class="lock-card" id="lock-card">
+          <div class="lock-ic">🔒</div>
+          <h3 class="display">Enter passcode</h3>
+          <p>This list is locked so gifts stay a surprise.</p>
+          <input type="password" id="pass-1" placeholder="Passcode" inputmode="numeric">
+          <div class="lock-error" id="lock-err"></div>
+          <button class="btn btn-primary" id="lock-submit" style="width:100%">Unlock</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const trySubmit = async () => {
+        const p1 = document.getElementById('pass-1').value;
+        const err = document.getElementById('lock-err');
+        const hash = await sha256(p1);
+        if(hash === ownerHash){
+          unlockedOwner = true;
+          overlay.remove();
+          mode = 'owner';
+          render();
+        } else {
+          err.textContent = 'That passcode isn\'t right.';
+          shakeLock();
+        }
+      };
+      document.getElementById('lock-submit').onclick = trySubmit;
+      document.getElementById('pass-1').addEventListener('keydown', e => { if(e.key==='Enter') trySubmit(); });
+    } else if(kind === 'change'){
+      overlay.innerHTML = `
+        <div class="lock-card" id="lock-card">
+          <div class="lock-ic">🔑</div>
+          <h3 class="display">Change passcode</h3>
+          <p>Enter your current passcode, then choose a new one.</p>
+          <input type="password" id="pass-old" placeholder="Current passcode" inputmode="numeric">
+          <input type="password" id="pass-1" placeholder="New passcode" inputmode="numeric">
+          <input type="password" id="pass-2" placeholder="Confirm new passcode" inputmode="numeric">
+          <div class="lock-error" id="lock-err"></div>
+          <button class="btn btn-primary" id="lock-submit" style="width:100%">Update passcode</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      document.getElementById('lock-submit').onclick = async () => {
+        const old = document.getElementById('pass-old').value;
+        const p1 = document.getElementById('pass-1').value;
+        const p2 = document.getElementById('pass-2').value;
+        const err = document.getElementById('lock-err');
+        const oldHash = await sha256(old);
+        if(oldHash !== ownerHash){ err.textContent = 'Current passcode is incorrect.'; shakeLock(); return; }
+        if(p1.length < 4){ err.textContent = 'Use at least 4 characters.'; shakeLock(); return; }
+        if(p1 !== p2){ err.textContent = 'New passcodes don\'t match.'; shakeLock(); return; }
+        const hash = await sha256(p1);
+        await savePasscode(hash);
+        overlay.remove();
+        showToast('Passcode updated.');
+      };
+    }
+
+    overlay.onclick = (e) => {
+      if(e.target === overlay){
+        overlay.remove();
+        if(mode === 'owner' && !unlockedOwner){ mode = 'guest'; render(); }
+      }
+    };
+  }
+
+  function shakeLock(){
+    const card = document.getElementById('lock-card');
+    if(card){ card.classList.add('shake'); setTimeout(()=>card.classList.remove('shake'), 350); }
+  }
+
+  // ---------------- OWNER VIEW ----------------
+  function renderOwner(){
+    app.innerHTML = `
+      <div class="owner-toolbar"><button class="link-btn" id="change-pass-link">Change passcode</button></div>
+      <div class="section-title display">Manage your wishlist</div>
+      <div class="section-desc">Add gift ideas and sort them by price. Buyers will only ever see what's still available.</div>
+
+      <div class="form-card">
+        <div class="form-row">
+          <div>
+            <label for="gift-name">Gift idea</label>
+            <input type="text" id="gift-name" placeholder="e.g. Wool hiking socks" maxlength="80">
+          </div>
+          <div>
+            <label for="gift-cat">Price category</label>
+            <select id="gift-cat">
+              ${CATEGORIES.map(c => `<option value="${c.id}">${c.label}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="full">
+            <label for="gift-desc">Details (optional)</label>
+            <textarea id="gift-desc" placeholder="Size, color, link, or anything specific..." maxlength="240"></textarea>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="add-gift-btn">Add to wishlist</button>
+      </div>
+
+      <div id="owner-list"></div>
+    `;
+    document.getElementById('add-gift-btn').onclick = addGift;
+    document.getElementById('gift-name').addEventListener('keydown', e => { if(e.key==='Enter') addGift(); });
+    document.getElementById('change-pass-link').onclick = () => openLockModal('change');
+    renderOwnerList();
+  }
+
+  function renderOwnerList(){
+    const list = document.getElementById('owner-list');
+    if(gifts.length === 0){
+      list.innerHTML = `<div class="empty-note">No gifts added yet. Start your list above 🎄</div>`;
+      return;
+    }
+    const catOrder = CATEGORIES.map(c=>c.id);
+    const sorted = [...gifts].sort((a,b) => {
+      if(a.claimed !== b.claimed) return a.claimed ? 1 : -1;
+      return catOrder.indexOf(a.category) - catOrder.indexOf(b.category);
+    });
+    list.innerHTML = `<div class="gift-list">` + sorted.map(g => {
+      const cat = CATEGORIES.find(c => c.id === g.category);
+      return `
+        <div class="gift-row ${g.claimed ? 'claimed' : ''}">
+          <div class="gift-info">
+            <h4>${escapeHtml(g.name)}</h4>
+            ${g.desc ? `<p>${escapeHtml(g.desc)}</p>` : ''}
+          </div>
+          <div class="gift-meta">
+            <span class="pill ${g.claimed ? 'claimed-pill' : ''}">${g.claimed ? 'Claimed' : (cat ? cat.label : '')}</span>
+            <button class="del-btn" data-id="${g.id}" title="Remove">🗑</button>
+          </div>
+        </div>
+      `;
+    }).join('') + `</div>`;
+    list.querySelectorAll('.del-btn').forEach(btn => {
+      btn.onclick = () => deleteGift(btn.dataset.id);
+    });
+  }
+
+  async function addGift(){
+    const nameEl = document.getElementById('gift-name');
+    const descEl = document.getElementById('gift-desc');
+    const catEl = document.getElementById('gift-cat');
+    const name = nameEl.value.trim();
+    if(!name){ nameEl.focus(); return; }
+    const newGift = { id: uid(), name, desc: descEl.value.trim(), category: catEl.value, claimed:false };
+    gifts.push(newGift);
+    await saveGifts();
+    nameEl.value = ''; descEl.value = '';
+    showToast('Added to your list.');
+    renderOwnerList();
+    nameEl.focus();
+  }
+
+  async function deleteGift(id){
+    gifts = gifts.filter(g => g.id !== id);
+    await saveGifts();
+    renderOwnerList();
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ---------------- MODE SWITCH ----------------
+  document.getElementById('mode-guest').onclick = () => { mode='guest'; render(); };
+  document.getElementById('mode-owner').onclick = () => {
+    if(unlockedOwner){ mode='owner'; render(); return; }
+    if(ownerHash){ openLockModal('unlock'); }
+    else { openLockModal('create'); }
+  };
+
+  // ---------------- SNOW ----------------
+  function initSnow(){
+    const snow = document.getElementById('snow');
+    const count = 26;
+    for(let i=0;i<count;i++){
+      const f = document.createElement('div');
+      f.className = 'flake';
+      const size = 2 + Math.random()*3;
+      f.style.width = size+'px';
+      f.style.height = size+'px';
+      f.style.left = Math.random()*100+'vw';
+      f.style.animationDuration = (10 + Math.random()*14)+'s';
+      f.style.animationDelay = (Math.random()*14)+'s';
+      snow.appendChild(f);
+    }
+  }
+
+  function initTreeline(){
+    const line = document.getElementById('treeline');
+    const trees = ['🌲','🎄'];
+    const n = 22;
+    let html = '';
+    for(let i=0;i<n;i++){
+      const size = 26 + Math.random()*22;
+      html += `<span class="t" style="font-size:${size}px">${trees[i % 2]}</span>`;
+    }
+    line.innerHTML = html;
+  }
+
+  // ---------------- LIGHT LIVE SYNC ----------------
+  setInterval(async () => {
+    if(mode === 'guest' && guestScreen !== 'boxes' && !openGift){
+      await loadGifts();
+      render();
+    }
+  }, 6000);
+
+  // ---------------- INIT ----------------
+  (async function init(){
+    initSnow();
+    initTreeline();
+    render();
+    await Promise.all([loadGifts(), loadPasscode()]);
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
